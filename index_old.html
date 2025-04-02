@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imprimir Ticket - WebUSB</title>
+</head>
+<body>
+    <h1>Imprimir Ticket en Impresora Térmica USB</h1>
+    <button id="connect">Conectar Impresora</button>
+    <button id="print">Imprimir Ticket</button>
+
+    <script>
+        let printerDevice = null;
+
+        document.getElementById("connect").addEventListener("click", async () => {
+            try {
+                printerDevice = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x04b8 }] }); // Cambia el vendorId
+                await printerDevice.open();
+                await printerDevice.selectConfiguration(1);
+                await printerDevice.claimInterface(0);
+                alert("Impresora conectada");
+            } catch (error) {
+                console.error("Error al conectar:", error);
+                alert("No se pudo conectar a la impresora.");
+            }
+        });
+
+        document.getElementById("print").addEventListener("click", async () => {
+            if (!printerDevice) {
+                alert("Primero conecta la impresora.");
+                return;
+            }
+
+            try {
+                const encoder = new TextEncoder();
+                const text = "¡Gracias por su compra!\nTotal: $20.000\n\n";
+                const data = encoder.encode(text);
+
+                await printerDevice.transferOut(1, data); // Envía el texto a la impresora
+                alert("Ticket enviado a la impresora.");
+            } catch (error) {
+                console.error("Error al imprimir:", error);
+                alert("No se pudo imprimir el ticket.");
+            }
+        });
+    </script>
+</body>
+</html>

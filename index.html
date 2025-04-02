@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Informacion de dispositivos Totem</title>
+    <link rel="stylesheet" href="Styles/style.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <div class="contenedor"></div>
+
+    <script>
+      $(document).ready(function () {
+        async function getUSBDevices() {
+          try {
+            const devices = await navigator.usb.getDevices();
+            if (devices.length === 0) {
+              console.log(
+                "No se encontraron dispositivos USB. Intenta conectar la impresora y vuelve a intentarlo."
+              );
+            } else {
+              devices.forEach((device) => {
+                console.log(`Dispositivo encontrado:`);
+                console.log(`🔹 Vendor ID: ${device.vendorId.toString(16)}`);
+                console.log(`🔹 Product ID: ${device.productId.toString(16)}`);
+              });
+            }
+          } catch (error) {
+            console.error("Error al obtener dispositivos USB:", error);
+          }
+        }
+
+        function logMessage(message) {
+          let logDiv = document.getElementById("log");
+          if (!logDiv) {
+            logDiv = document.createElement("div");
+            logDiv.id = "log";
+            logDiv.style =
+              "position:fixed;bottom:0;left:0;width:100%;height:200px;overflow:auto;background:black;color:white;padding:5px;";
+            document.body.appendChild(logDiv);
+          }
+          logDiv.innerHTML += message + "<br>";
+        }
+
+        // Reemplazar console.log para mostrarlo en pantalla
+        console.log = logMessage;
+
+        // Prueba
+        console.log("Este es un mensaje de prueba");
+        if ("usb" in navigator) {
+          console.log("WebUSB está soportado en este navegador.");
+          getUSBDevices();
+        } else {
+          console.log("WebUSB NO está soportado.");
+        }
+      });
+    </script>
+  </body>
+</html>
